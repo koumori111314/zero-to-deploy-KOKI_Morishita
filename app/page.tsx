@@ -15,8 +15,6 @@ export default function Home() {
   
   // 注文リスト（カート）の状態
   const [cart, setCart] = useState<CartItem[]>([]);
-  // 割り勘の人数
-  const [peopleCount, setPeopleCount] = useState<number>(1);
   // エラーメッセージの状態
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   // カート（注文リスト）画面の開閉状態
@@ -28,7 +26,6 @@ export default function Home() {
   // --- 計算ロジック ---
   const totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const splitPrice = peopleCount > 0 ? Math.ceil(totalPrice / peopleCount) : 0;
 
   // --- アクション ---
   const handleAddToCart = (item: MenuItem, quantity: number = 1) => {
@@ -153,11 +150,6 @@ export default function Home() {
                         <span className={`font-bold ${item.isSoldOut ? 'text-stone-500 line-through' : 'text-red-900'}`}>
                           ¥{item.price.toLocaleString()}
                         </span>
-                        {!item.isSoldOut && (
-                          <div className="h-8 w-8 text-red-900 border border-red-200 bg-white rounded-full flex items-center justify-center shadow-sm">
-                            <Plus className="h-4 w-4" />
-                          </div>
-                        )}
                       </div>
                     </div>
                   </div>
@@ -231,37 +223,12 @@ export default function Home() {
               )}
             </div>
 
-            {/* 合計と割り勘計算エリア */}
+            {/* 合計計算エリア */}
             <div className="p-6 border-t bg-white space-y-4 rounded-t-xl shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)]">
               <div className="flex justify-between items-end border-b border-stone-100 pb-4">
                 <span className="font-bold text-stone-500">合計金額</span>
                 <span className="font-bold text-3xl text-red-900 leading-none">¥{totalPrice.toLocaleString()}</span>
               </div>
-              
-              <div className="flex items-center justify-between bg-stone-50 p-4 rounded-xl">
-                <span className="font-bold text-sm text-stone-600">何人で割り勘しますか？</span>
-                <div className="flex items-center gap-2">
-                  <input 
-                    type="number" 
-                    min="1" 
-                    value={peopleCount || ''} 
-                    onChange={(e) => {
-                      const val = parseInt(e.target.value);
-                      setPeopleCount(Number.isNaN(val) ? 0 : val);
-                    }}
-                    onBlur={() => { if (!peopleCount || peopleCount < 1) setPeopleCount(1) }}
-                    className="border border-stone-300 rounded overflow-hidden px-3 py-1.5 w-16 text-center font-bold outline-none focus:border-red-900"
-                  />
-                  <span className="font-bold text-stone-600">人</span>
-                </div>
-              </div>
-              
-              {peopleCount > 1 && (
-                <div className="flex justify-between items-center px-2">
-                  <span className="font-bold text-sm text-stone-500">1人あたり</span>
-                  <span className="font-bold text-xl text-stone-800">¥{splitPrice.toLocaleString()}</span>
-                </div>
-              )}
               
               <Button 
                 disabled={cart.length === 0}
