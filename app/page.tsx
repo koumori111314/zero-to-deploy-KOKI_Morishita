@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ShoppingCart, Plus, X, Minus, Loader2 } from "lucide-react";
+import { ShoppingCart, Plus, X, Minus, Loader2, CheckCircle2 } from "lucide-react";
 import { MenuItem } from "@/data/menu";
 
 type CartItem = MenuItem & { quantity: number };
@@ -29,13 +29,16 @@ export default function Home() {
   
   // 注文リスト（カート）の状態
   const [cart, setCart] = useState<CartItem[]>([]);
-  // エラーメッセージの状態
+  // エラー/成功メッセージの状態
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   // カート（注文リスト）画面の開閉状態
   const [isCartOpen, setIsCartOpen] = useState(false);
   // 商品詳細ポップアップの状態
   const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItem | null>(null);
   const [detailQuantity, setDetailQuantity] = useState<number>(1);
+  // 注文送信中の状態
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // --- 計算ロジック ---
   const totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -87,6 +90,43 @@ export default function Home() {
     });
   };
 
+  const handleOrderSubmit = async () => {
+    if (cart.length === 0 || isSubmitting) return;
+
+    setIsSubmitting(true);
+    setErrorMessage(null);
+
+    try {
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: cart,
+          totalPrice,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "注文の送信に失敗しました");
+      }
+
+      // 成功時の処理
+      setSuccessMessage("ご注文を承りました！");
+      setCart([]); // カートを空にする
+      setIsCartOpen(false); // カートを閉じる
+      
+      setTimeout(() => setSuccessMessage(null), 3000);
+      
+    } catch (error: any) {
+      setErrorMessage(error.message);
+      setTimeout(() => setErrorMessage(null), 3000);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const displayCategories = selectedCategory === "すべて" 
     ? categories.filter(c => c !== "すべて") 
     : [selectedCategory];
@@ -97,6 +137,14 @@ export default function Home() {
       {errorMessage && (
         <div className="fixed top-20 left-1/2 -translate-x-1/2 bg-red-600/90 text-white px-6 py-3 rounded-full shadow-lg z-50 transition-opacity font-bold whitespace-nowrap">
           {errorMessage}
+        </div>
+      )}
+
+      {/* 成功メッセージ（トースト表示） */}
+      {successMessage && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 bg-emerald-600/90 text-white px-6 py-3 rounded-full shadow-lg z-50 transition-opacity font-bold whitespace-nowrap flex items-center gap-2">
+          <CheckCircle2 className="h-5 w-5" />
+          {successMessage}
         </div>
       )}
 
@@ -265,10 +313,18 @@ export default function Home() {
               </div>
               
               <Button 
-                disabled={cart.length === 0}
-                className="w-full bg-red-900 hover:bg-red-800 text-white rounded-full h-14 text-lg font-bold shadow-lg mt-2"
+                disabled={cart.length === 0 || isSubmitting}
+                onClick={handleOrderSubmit}
+                className="w-full bg-red-900 hover:bg-red-800 text-white rounded-full h-14 text-lg font-bold shadow-lg mt-2 flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                注文を確定する
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    注文を送信中...
+                  </>
+                ) : (
+                  "注文を確定する"
+                )}
               </Button>
             </div>
           </div>
