@@ -3,10 +3,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ShoppingCart, Plus, X, Minus } from "lucide-react";
+import { ShoppingCart, Plus, X, Minus, History } from "lucide-react";
 import { MENU_DATA, MenuItem } from "@/data/menu";
 
 type CartItem = MenuItem & { quantity: number };
+type OrderHistoryItem = { id: number; created_at: string; total_price: number; items: CartItem[] };
 
 export default function ClientPage({ initialMenu }: { initialMenu: MenuItem[] }) {
   // --- 状態管理 ---
@@ -15,13 +16,16 @@ export default function ClientPage({ initialMenu }: { initialMenu: MenuItem[] })
   
   // 注文リスト（カート）の状態
   const [cart, setCart] = useState<CartItem[]>([]);
-  // エラーメッセージの状態
+  // 注文履歴の状態
+  const [orderHistory, setOrderHistory] = useState<OrderHistoryItem[]>([]);
+  // UIの状態
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  // カート（注文リスト）画面の開閉状態
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  // 商品詳細ポップアップの状態
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItem | null>(null);
   const [detailQuantity, setDetailQuantity] = useState<number>(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // --- 計算ロジック ---
   const totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -73,16 +77,52 @@ export default function ClientPage({ initialMenu }: { initialMenu: MenuItem[] })
     });
   };
 
+  const handleConfirmOrder = async () => {
+    if (cart.length === 0) return;
+    setIsSubmitting(true);
+    
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cart }),
+      });
+      
+      const data = await res.json();
+      
+      if (res.ok && data.success) {
+        setOrderHistory(prev => [...prev, data.order]);
+        setCart([]);
+        setIsCartOpen(false);
+        setSuccessMessage("注文が完了しました。");
+        setTimeout(() => setSuccessMessage(null), 3000);
+      } else {
+        setErrorMessage(data.error || "注文に失敗しました。");
+        setTimeout(() => setErrorMessage(null), 3000);
+      }
+    } catch (error) {
+      setErrorMessage("通信エラーが発生しました。");
+      setTimeout(() => setErrorMessage(null), 3000);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const displayCategories = selectedCategory === "すべて" 
     ? categories.filter(c => c !== "すべて") 
     : [selectedCategory];
 
   return (
     <div className="max-w-md mx-auto min-h-screen bg-stone-50 relative pb-24 shadow-xl">
-      {/* エラーメッセージ（トースト表示） */}
+      {/* メッセージ（トースト表示） */}
       {errorMessage && (
         <div className="fixed top-20 left-1/2 -translate-x-1/2 bg-red-600/90 text-white px-6 py-3 rounded-full shadow-lg z-50 transition-opacity font-bold whitespace-nowrap">
           {errorMessage}
+        </div>
+      )}
+      {successMessage && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 bg-green-600/90 text-white px-6 py-3 rounded-full shadow-lg z-50 transition-opacity font-bold whitespace-nowrap">
+          {successMessage}
         </div>
       )}
 
@@ -175,9 +215,18 @@ export default function ClientPage({ initialMenu }: { initialMenu: MenuItem[] })
 
       {/* 3. Footer (Fixed Cart Button) */}
       <div className="fixed bottom-0 left-0 w-full z-30 pointer-events-none">
-        <div className="max-w-md mx-auto px-4 pb-6 pt-12 bg-gradient-to-t from-stone-50 via-stone-50/90 to-transparent pointer-events-auto">
+        <div className="max-w-md mx-auto px-4 pb-6 pt-12 bg-gradient-to-t from-stone-50 via-stone-50/90 to-transparent pointer-events-auto flex gap-2">
+          {orderHistory.length > 0 && (
+            <Button 
+              variant="outline"
+              className="h-14 bg-white hover:bg-stone-50 text-stone-700 rounded-full font-bold shadow-xl relative active:scale-[0.98] transition-all flex items-center justify-center border-stone-200"
+              onClick={() => setIsHistoryOpen(true)}
+            >
+              <History className="h-6 w-6" />
+            </Button>
+          )}
           <Button 
-            className="w-full h-14 bg-red-900 hover:bg-red-800 text-white rounded-full font-bold text-lg shadow-xl relative active:scale-[0.98] transition-all flex items-center justify-center"
+            className="flex-1 h-14 bg-red-900 hover:bg-red-800 text-white rounded-full font-bold text-lg shadow-xl relative active:scale-[0.98] transition-all flex items-center justify-center"
             onClick={() => setIsCartOpen(true)}
           >
             <ShoppingCart className="absolute left-6 h-6 w-6" />
@@ -244,10 +293,11 @@ export default function ClientPage({ initialMenu }: { initialMenu: MenuItem[] })
               </div>
               
               <Button 
-                disabled={cart.length === 0}
+                disabled={cart.length === 0 || isSubmitting}
                 className="w-full bg-red-900 hover:bg-red-800 text-white rounded-full h-14 text-lg font-bold shadow-lg mt-2"
+                onClick={handleConfirmOrder}
               >
-                注文を確定する
+                {isSubmitting ? "注文を送信中..." : "注文を確定する"}
               </Button>
             </div>
           </div>
@@ -309,6 +359,58 @@ export default function ClientPage({ initialMenu }: { initialMenu: MenuItem[] })
                 <span>カートに追加</span>
                 <span className="ml-2 font-normal opacity-80">・ ¥{(selectedMenuItem.price * detailQuantity).toLocaleString()}</span>
               </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 6. Order History Modal */}
+      {isHistoryOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex flex-col justify-end max-w-md mx-auto">
+          {/* オーバーレイクリックで閉じる */}
+          <div className="flex-1" onClick={() => setIsHistoryOpen(false)}></div>
+          
+          <div className="bg-white rounded-t-3xl min-h-[50vh] max-h-[85vh] flex flex-col shadow-2xl animate-in slide-in-from-bottom-full duration-200">
+            <div className="p-4 border-b flex justify-between items-center sticky top-0 bg-white rounded-t-3xl z-10">
+              <h2 className="font-bold text-xl flex items-center gap-2">
+                <History className="h-5 w-5" />
+                注文履歴
+              </h2>
+              <Button variant="ghost" size="icon" onClick={() => setIsHistoryOpen(false)} className="rounded-full bg-stone-100 hover:bg-stone-200">
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+            
+            <div className="p-4 overflow-y-auto flex-1 space-y-6">
+              {orderHistory.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center text-stone-400 py-12">
+                  <History className="h-12 w-12 mb-4 opacity-20" />
+                  <p className="font-bold">注文履歴はありません</p>
+                </div>
+              ) : (
+                [...orderHistory].reverse().map((order, index) => (
+                  <div key={order.id || index} className="space-y-3 bg-stone-50 p-4 rounded-xl border border-stone-100">
+                    <div className="flex justify-between items-center border-b border-stone-200 pb-2">
+                      <span className="text-sm font-bold text-stone-500">注文 #{order.id}</span>
+                      <span className="text-sm text-stone-500">
+                        {order.created_at ? new Date(order.created_at).toLocaleTimeString() : new Date().toLocaleTimeString()}
+                      </span>
+                    </div>
+                    <div className="space-y-2">
+                      {order.items.map((item, i) => (
+                        <div key={i} className="flex justify-between text-sm">
+                          <span className="font-medium text-stone-700">{item.name} <span className="text-stone-400">×{item.quantity}</span></span>
+                          <span className="font-medium text-stone-700">¥{(item.price * item.quantity).toLocaleString()}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex justify-between items-center pt-2 border-t border-stone-200">
+                      <span className="font-bold text-stone-600">合計</span>
+                      <span className="font-bold text-lg text-red-900">¥{order.total_price.toLocaleString()}</span>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>

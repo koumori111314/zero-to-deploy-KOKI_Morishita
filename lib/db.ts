@@ -48,3 +48,54 @@ export async function getMenuItems(): Promise<MenuItem[]> {
     client.release();
   }
 }
+
+export async function createOrder(cart: any[]) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS orders (
+        id SERIAL PRIMARY KEY,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        total_price INTEGER NOT NULL,
+        status VARCHAR(50) DEFAULT 'pending'
+      );
+    `);
+    
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS order_items (
+        id SERIAL PRIMARY KEY,
+        order_id INTEGER REFERENCES orders(id),
+        menu_item_id INTEGER REFERENCES menu_items(id),
+        menu_item_name VARCHAR(255) NOT NULL,
+        price INTEGER NOT NULL,
+        quantity INTEGER NOT NULL
+      );
+    `);
+    
+    const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    
+    const orderRes = await client.query(
+      'INSERT INTO orders (total_price) VALUES ($1) RETURNING *',
+      [totalPrice]
+    );
+    const orderId = orderRes.rows[0].id;
+    
+    for (const item of cart) {
+      await client.query(
+        'INSERT INTO order_items (order_id, menu_item_id, menu_item_name, price, quantity) VALUES ($1, $2, $3, $4, $5)',
+        [orderId, parseInt(item.id), item.name, item.price, item.quantity]
+      );
+    }
+    
+    await client.query('COMMIT');
+    
+    return { ...orderRes.rows[0], items: cart };
+  } catch (e) {
+    await client.query('ROLLBACK');
+    throw e;
+  } finally {
+    client.release();
+  }
+}
