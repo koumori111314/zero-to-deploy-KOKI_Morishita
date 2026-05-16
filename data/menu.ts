@@ -10,7 +10,7 @@ export type MenuItem = {
 
 export const MENU_DATA: MenuItem[] = [
   // 御膳・定食
-  { id: "1", name: "特製 すき焼き御膳", description: "厳選和牛を贅沢に使用した当店自慢の逸品。", price: 1800, category: "御膳・定食", imageUrl: "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400&q=80", isSoldOut: false },
+  { id: "1", name: "特製 すき焼き御膳", description: "厳選和牛を贅沢に使用した当店自慢の逸品。", price: 1800, category: "御膳・定食", imageUrl: "sukiyakigozenn.jpg", isSoldOut: false },
   { id: "2", name: "季節の刺身盛り合わせ", description: "旬の鮮魚を市場から直接仕入れた新鮮なお造り。", price: 2400, category: "御膳・定食", imageUrl: "https://images.unsplash.com/photo-1534080564583-6be75777b70a?w=400&q=80", isSoldOut: false },
   { id: "3", name: "極上 海鮮丼", description: "新鮮な海の幸をふんだんに盛り込んだ贅沢な一杯。", price: 2100, category: "御膳・定食", imageUrl: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80", isSoldOut: true },
   { id: "4", name: "天ぷら盛り合わせ御膳", description: "サクサクの衣で揚げた旬の野菜と海老の天ぷら。", price: 1600, category: "御膳・定食", imageUrl: "https://images.unsplash.com/photo-1615361200141-f45040f367be?w=400&q=80", isSoldOut: false },
