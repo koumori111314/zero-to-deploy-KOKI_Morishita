@@ -1,4 +1,7 @@
-﻿import { Button } from "@/components/ui/button";
+﻿"use client";
+
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ShoppingCart, Plus } from "lucide-react";
 
@@ -29,27 +32,52 @@ const MENU_DATA: MenuItem[] = [
 ];
 
 export default function Home() {
-  // カテゴリ一覧を抽出（重複排除）
-  const categories = Array.from(new Set(MENU_DATA.map(item => item.category)));
+  // カテゴリ一覧（すべてを先頭に追加）
+  const categories = ["すべて", ...Array.from(new Set(MENU_DATA.map(item => item.category)))];
+  const [selectedCategory, setSelectedCategory] = useState("すべて");
+
+  // 選択されたカテゴリに応じて表示するセクションを決定
+  const displayCategories = selectedCategory === "すべて" 
+    ? categories.filter(c => c !== "すべて") 
+    : [selectedCategory];
 
   return (
     <div className="max-w-md mx-auto min-h-screen bg-stone-50 relative pb-24 shadow-xl">
       {/* 1. Header (Sticky) */}
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-stone-200 px-4 py-3 flex items-center justify-between">
-        <h1 className="text-xl font-bold tracking-widest text-red-900 font-serif">OSAKI亭</h1>
-        <Button variant="ghost" size="icon" aria-label="メニュー">
-          <span className="sr-only">メニュー</span>
-          <div className="space-y-1">
-            <div className="w-5 h-0.5 bg-stone-600"></div>
-            <div className="w-5 h-0.5 bg-stone-600"></div>
-            <div className="w-5 h-0.5 bg-stone-600"></div>
-          </div>
-        </Button>
+      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-stone-200 flex flex-col">
+        <div className="px-4 py-3 flex items-center justify-between">
+          <h1 className="text-xl font-bold tracking-widest text-red-900 font-serif">OSAKI亭</h1>
+          <Button variant="ghost" size="icon" aria-label="メニュー">
+            <span className="sr-only">メニュー</span>
+            <div className="space-y-1">
+              <div className="w-5 h-0.5 bg-stone-600"></div>
+              <div className="w-5 h-0.5 bg-stone-600"></div>
+              <div className="w-5 h-0.5 bg-stone-600"></div>
+            </div>
+          </Button>
+        </div>
+        
+        {/* カテゴリフィルター */}
+        <div className="px-4 py-2 overflow-x-auto whitespace-nowrap hide-scrollbar flex gap-2 border-t border-stone-100 bg-stone-50/50">
+          {categories.map((category) => (
+            <button
+              key={category}
+              onClick={() => setSelectedCategory(category)}
+              className={`px-4 py-1.5 rounded-full text-sm font-bold transition-colors border ${
+                selectedCategory === category
+                  ? "bg-red-900 text-white border-red-900 shadow-sm"
+                  : "bg-white text-stone-600 border-stone-200 hover:bg-stone-100"
+              }`}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
       </header>
 
       {/* 2. Menu Area */}
       <main className="p-4 space-y-8">
-        {categories.map((category) => (
+        {displayCategories.map((category) => (
           <section key={category}>
             <h2 className="text-lg font-bold mb-4 border-l-4 border-red-900 pl-2 text-stone-800">
               {category}
