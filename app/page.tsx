@@ -9,22 +9,23 @@ type MenuItem = {
   description: string;
   price: number;
   category: string;
+  imageUrl: string;
 };
 
 const MENU_DATA: MenuItem[] = [
   // 御膳・定食
-  { id: "1", name: "特製 すき焼き御膳", description: "厳選和牛を贅沢に使用した当店自慢の逸品。", price: 1800, category: "御膳・定食" },
-  { id: "2", name: "季節の刺身盛り合わせ", description: "旬の鮮魚を市場から直接仕入れた新鮮なお造り。", price: 2400, category: "御膳・定食" },
-  { id: "3", name: "極上 海鮮丼", description: "新鮮な海の幸をふんだんに盛り込んだ贅沢な一杯。", price: 2100, category: "御膳・定食" },
-  { id: "4", name: "天ぷら盛り合わせ御膳", description: "サクサクの衣で揚げた旬の野菜と海老の天ぷら。", price: 1600, category: "御膳・定食" },
+  { id: "1", name: "特製 すき焼き御膳", description: "厳選和牛を贅沢に使用した当店自慢の逸品。", price: 1800, category: "御膳・定食", imageUrl: "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400&q=80" },
+  { id: "2", name: "季節の刺身盛り合わせ", description: "旬の鮮魚を市場から直接仕入れた新鮮なお造り。", price: 2400, category: "御膳・定食", imageUrl: "https://images.unsplash.com/photo-1534080564583-6be75777b70a?w=400&q=80" },
+  { id: "3", name: "極上 海鮮丼", description: "新鮮な海の幸をふんだんに盛り込んだ贅沢な一杯。", price: 2100, category: "御膳・定食", imageUrl: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80" },
+  { id: "4", name: "天ぷら盛り合わせ御膳", description: "サクサクの衣で揚げた旬の野菜と海老の天ぷら。", price: 1600, category: "御膳・定食", imageUrl: "https://images.unsplash.com/photo-1615361200141-f45040f367be?w=400&q=80" },
   // 一品料理
-  { id: "5", name: "銀だらの西京焼き", description: "特製味噌にじっくり漬け込んだ、香ばしく上品な味わい。", price: 1450, category: "一品料理" },
-  { id: "6", name: "自家製 だし巻き卵", description: "こだわりの出汁をたっぷり含んだふんわり卵焼き。", price: 680, category: "一品料理" },
-  { id: "7", name: "若鶏の唐揚げ", description: "外はカリッと、中はジューシーな定番メニュー。", price: 750, category: "一品料理" },
+  { id: "5", name: "銀だらの西京焼き", description: "特製味噌にじっくり漬け込んだ、香ばしく上品な味わい。", price: 1450, category: "一品料理", imageUrl: "https://images.unsplash.com/photo-1598511726623-d09fff26be4c?w=400&q=80" },
+  { id: "6", name: "自家製 だし巻き卵", description: "こだわりの出汁をたっぷり含んだふんわり卵焼き。", price: 680, category: "一品料理", imageUrl: "https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?w=400&q=80" },
+  { id: "7", name: "若鶏の唐揚げ", description: "外はカリッと、中はジューシーな定番メニュー。", price: 750, category: "一品料理", imageUrl: "https://images.unsplash.com/photo-1569058242253-1df34b0e8f15?w=400&q=80" },
   // お飲み物
-  { id: "8", name: "生ビール（プレミアムモルツ）", description: "キンキンに冷えた生ビールで乾杯。", price: 600, category: "お飲み物" },
+  { id: "8", name: "生ビール（プレミアムモルツ）", description: "キンキンに冷えた生ビールで乾杯。", price: 600, category: "お飲み物", imageUrl: "https://images.unsplash.com/photo-1518176258769-f227c798e50b?w=400&q=80" },
   // デザート
-  { id: "9", name: "自家製 抹茶アイス", description: "濃厚な宇治抹茶を使用したひんやりデザート。", price: 450, category: "デザート" },
+  { id: "9", name: "自家製 抹茶アイス", description: "濃厚な宇治抹茶を使用したひんやりデザート。", price: 450, category: "デザート", imageUrl: "https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?w=400&q=80" },
 ];
 
 export default function Home() {
@@ -57,8 +58,8 @@ export default function Home() {
               {MENU_DATA.filter(item => item.category === category).map((item) => (
                 <Card key={item.id} className="overflow-hidden border-stone-100 shadow-sm">
                   <div className="flex gap-4 p-3 pr-4">
-                    <div className="w-24 h-24 bg-stone-200 rounded-xl overflow-hidden flex-shrink-0 animate-pulse flex items-center justify-center">
-                       <span className="text-stone-400 text-xs text-center px-1 font-medium">No Image</span>
+                    <div className="w-24 h-24 bg-stone-200 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center">
+                       <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1 flex flex-col justify-between py-1">
                       <div>
