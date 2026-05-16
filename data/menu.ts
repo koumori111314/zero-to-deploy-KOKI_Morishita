@@ -10,7 +10,7 @@ export type MenuItem = {
 
 export const MENU_DATA: MenuItem[] = [
   // 御膳・定食
-  { id: "1", name: "特製 すき焼き御膳", description: "厳選和牛を贅沢に使用した当店自慢の逸品。", price: 1800, category: "御膳・定食", imageUrl: "/sukiyakigozenn.jpg?v=2", isSoldOut: false },
+  { id: "1", name: "特製 すき焼き御膳", description: "厳選和牛を贅沢に使用した当店自慢の逸品。", price: 1800, category: "御膳・定食", imageUrl: "https://www.google.com/imgres?q=%E3%81%99%E3%81%8D%E7%84%BC%E3%81%8D&imgurl=https%3A%2F%2Fwww.kikkoman.co.jp%2Fhomecook%2Fsearch%2Frecipe%2Fimg%2F00002478.jpg%3Fsize%3Dlarge&imgrefurl=https%3A%2F%2Fwww.kikkoman.co.jp%2Fhomecook%2Fsearch%2Frecipe%2F00002478%2F&docid=AurJWS-HVu6z2M&tbnid=b96N7prcFzVu2M&vet=12ahUKEwjQkfKTq72UAxU5bfUHHcQtMpEQnPAOegQIMxAA..i&w=800&h=533&hcb=2&ved=2ahUKEwjQkfKTq72UAxU5bfUHHcQtMpEQnPAOegQIMxAA", isSoldOut: false },
   { id: "2", name: "季節の刺身盛り合わせ", description: "旬の鮮魚を市場から直接仕入れた新鮮なお造り。", price: 2400, category: "御膳・定食", imageUrl: "/sashimi.jpg?v=2", isSoldOut: false },
   { id: "3", name: "極上 海鮮丼", description: "新鮮な海の幸をふんだんに盛り込んだ贅沢な一杯。", price: 2100, category: "御膳・定食", imageUrl: "/kaisenndonn.jpg?v=2", isSoldOut: true },
   { id: "4", name: "天ぷら盛り合わせ御膳", description: "サクサクの衣で揚げた旬の野菜と海老の天ぷら。", price: 1600, category: "御膳・定食", imageUrl: "https://images.unsplash.com/photo-1615361200141-f45040f367be?w=400&q=80", isSoldOut: false },
