@@ -90,14 +90,22 @@ export default function Home() {
       <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-stone-200 flex flex-col">
         <div className="px-4 py-3 flex items-center justify-between">
           <h1 className="text-xl font-bold tracking-widest text-red-900 font-serif">OSAKI亭</h1>
-          <Button variant="ghost" size="icon" aria-label="メニュー">
-            <span className="sr-only">メニュー</span>
-            <div className="space-y-1">
-              <div className="w-5 h-0.5 bg-stone-600"></div>
-              <div className="w-5 h-0.5 bg-stone-600"></div>
-              <div className="w-5 h-0.5 bg-stone-600"></div>
-            </div>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" className="h-8 px-3 text-xs font-bold text-stone-600 border-stone-300 rounded-full bg-white shadow-sm hover:bg-stone-50">
+              店員呼出
+            </Button>
+            <Button variant="outline" size="sm" className="h-8 px-3 text-xs font-bold text-stone-600 border-stone-300 rounded-full bg-white shadow-sm hover:bg-stone-50">
+              お会計
+            </Button>
+            <Button variant="ghost" size="icon" aria-label="メニュー" className="-mr-2">
+              <span className="sr-only">メニュー</span>
+              <div className="space-y-1">
+                <div className="w-5 h-0.5 bg-stone-600"></div>
+                <div className="w-5 h-0.5 bg-stone-600"></div>
+                <div className="w-5 h-0.5 bg-stone-600"></div>
+              </div>
+            </Button>
+          </div>
         </div>
         
         {/* カテゴリフィルター */}
@@ -150,6 +158,11 @@ export default function Home() {
                         <span className={`font-bold ${item.isSoldOut ? 'text-stone-500 line-through' : 'text-red-900'}`}>
                           ¥{item.price.toLocaleString()}
                         </span>
+                        {!item.isSoldOut && (
+                          <div className="h-8 px-4 text-white bg-red-900 rounded-full flex items-center justify-center shadow-sm text-xs font-bold">
+                            注文する
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
