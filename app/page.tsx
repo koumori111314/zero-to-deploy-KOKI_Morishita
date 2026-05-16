@@ -1,16 +1,30 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ShoppingCart, Plus, X, Minus } from "lucide-react";
-import { MENU_DATA, MenuItem } from "@/data/menu";
+import { ShoppingCart, Plus, X, Minus, Loader2 } from "lucide-react";
+import { MenuItem } from "@/data/menu";
 
 type CartItem = MenuItem & { quantity: number };
 
 export default function Home() {
+  // DBから取得したメニューデータ
+  const [menuData, setMenuData] = useState<MenuItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // APIからメニュー一覧を取得する
+    fetch("/api/menu")
+      .then((res) => res.json())
+      .then((data) => {
+        setMenuData(data);
+        setIsLoading(false);
+      });
+  }, []);
+
   // --- 状態管理 ---
-  const categories = ["すべて", ...Array.from(new Set(MENU_DATA.map(item => item.category)))];
+  const categories = ["すべて", ...Array.from(new Set(menuData.map(item => item.category)))];
   const [selectedCategory, setSelectedCategory] = useState("すべて");
   
   // 注文リスト（カート）の状態
@@ -128,49 +142,56 @@ export default function Home() {
 
       {/* 2. Menu Area */}
       <main className="p-4 space-y-8">
-        {displayCategories.map((category) => (
-          <section key={category}>
-            <h2 className="text-lg font-bold mb-4 border-l-4 border-red-900 pl-2 text-stone-800">
-              {category}
-            </h2>
-            <div className="space-y-4">
-              {MENU_DATA.filter(item => item.category === category).map((item) => (
-                <Card 
-                  key={item.id} 
-                  className={`overflow-hidden border-stone-100 shadow-sm transition-all ${item.isSoldOut ? 'opacity-60 grayscale-[0.5]' : 'cursor-pointer hover:shadow-md hover:border-red-100'}`}
-                  onClick={() => handleOpenDetail(item)}
-                >
-                  <div className="flex gap-4 p-3 pr-4 pointer-events-none">
-                    <div className="w-24 h-24 bg-stone-200 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center relative">
-                       <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
-                       {item.isSoldOut && (
-                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                           <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">売切</span>
-                         </div>
-                       )}
-                    </div>
-                    <div className="flex-1 flex flex-col justify-between py-1">
-                      <div>
-                        <h3 className="font-bold text-base leading-tight">{item.name}</h3>
-                        <p className="text-xs text-stone-500 mt-1 line-clamp-2">{item.description}</p>
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-20 text-stone-400">
+            <Loader2 className="h-8 w-8 animate-spin mb-4" />
+            <p>メニューを読み込み中...</p>
+          </div>
+        ) : (
+          displayCategories.map((category) => (
+            <section key={category}>
+              <h2 className="text-lg font-bold mb-4 border-l-4 border-red-900 pl-2 text-stone-800">
+                {category}
+              </h2>
+              <div className="space-y-4">
+                {menuData.filter(item => item.category === category).map((item) => (
+                  <Card 
+                    key={item.id} 
+                    className={`overflow-hidden border-stone-100 shadow-sm transition-all ${item.isSoldOut ? 'opacity-60 grayscale-[0.5]' : 'cursor-pointer hover:shadow-md hover:border-red-100'}`}
+                    onClick={() => handleOpenDetail(item)}
+                  >
+                    <div className="flex gap-4 p-3 pr-4 pointer-events-none">
+                      <div className="w-24 h-24 bg-stone-200 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center relative">
+                         <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                         {item.isSoldOut && (
+                           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                             <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">売切</span>
+                           </div>
+                         )}
                       </div>
-                      <div className="flex items-center justify-between mt-2">
-                        <span className={`font-bold ${item.isSoldOut ? 'text-stone-500 line-through' : 'text-red-900'}`}>
-                          ¥{item.price.toLocaleString()}
-                        </span>
-                        {!item.isSoldOut && (
-                          <div className="h-8 px-4 text-white bg-red-900 rounded-full flex items-center justify-center shadow-sm text-xs font-bold">
-                            注文する
-                          </div>
-                        )}
+                      <div className="flex-1 flex flex-col justify-between py-1">
+                        <div>
+                          <h3 className="font-bold text-base leading-tight">{item.name}</h3>
+                          <p className="text-xs text-stone-500 mt-1 line-clamp-2">{item.description}</p>
+                        </div>
+                        <div className="flex items-center justify-between mt-2">
+                          <span className={`font-bold ${item.isSoldOut ? 'text-stone-500 line-through' : 'text-red-900'}`}>
+                            ¥{item.price.toLocaleString()}
+                          </span>
+                          {!item.isSoldOut && (
+                            <div className="h-8 px-4 text-white bg-red-900 rounded-full flex items-center justify-center shadow-sm text-xs font-bold">
+                              注文する
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </section>
-        ))}
+                  </Card>
+                ))}
+              </div>
+            </section>
+          ))
+        )}
       </main>
 
       {/* 3. Footer (Fixed Cart Button) */}
