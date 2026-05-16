@@ -21,6 +21,9 @@ export default function Home() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   // カート（注文リスト）画面の開閉状態
   const [isCartOpen, setIsCartOpen] = useState(false);
+  // 商品詳細ポップアップの状態
+  const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItem | null>(null);
+  const [detailQuantity, setDetailQuantity] = useState<number>(1);
 
   // --- 計算ロジック ---
   const totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -28,27 +31,37 @@ export default function Home() {
   const splitPrice = peopleCount > 0 ? Math.ceil(totalPrice / peopleCount) : 0;
 
   // --- アクション ---
-  const handleAddToCart = (item: MenuItem) => {
-    // 品切れチェック
-    if (item.isSoldOut) {
-      setErrorMessage(`${item.name}は現在品切れです。`);
-      setTimeout(() => setErrorMessage(null), 3000); // 3秒後にメッセージを消す
-      return;
-    }
-
+  const handleAddToCart = (item: MenuItem, quantity: number = 1) => {
     setCart(prev => {
       const existing = prev.find(cartItem => cartItem.id === item.id);
       if (existing) {
         // すでにある場合は数量を増やす
         return prev.map(cartItem => 
           cartItem.id === item.id 
-            ? { ...cartItem, quantity: cartItem.quantity + 1 } 
+            ? { ...cartItem, quantity: cartItem.quantity + quantity } 
             : cartItem
         );
       }
       // 新規追加
-      return [...prev, { ...item, quantity: 1 }];
+      return [...prev, { ...item, quantity }];
     });
+  };
+
+  const handleOpenDetail = (item: MenuItem) => {
+    if (item.isSoldOut) {
+      setErrorMessage(`${item.name}は現在品切れです。`);
+      setTimeout(() => setErrorMessage(null), 3000);
+      return;
+    }
+    setSelectedMenuItem(item);
+    setDetailQuantity(1);
+  };
+
+  const handleConfirmAddToCart = () => {
+    if (selectedMenuItem) {
+      handleAddToCart(selectedMenuItem, detailQuantity);
+      setSelectedMenuItem(null);
+    }
   };
 
   const handleUpdateQuantity = (id: string, delta: number) => {
@@ -117,8 +130,12 @@ export default function Home() {
             </h2>
             <div className="space-y-4">
               {MENU_DATA.filter(item => item.category === category).map((item) => (
-                <Card key={item.id} className={`overflow-hidden border-stone-100 shadow-sm ${item.isSoldOut ? 'opacity-60 grayscale-[0.5]' : ''}`}>
-                  <div className="flex gap-4 p-3 pr-4">
+                <Card 
+                  key={item.id} 
+                  className={`overflow-hidden border-stone-100 shadow-sm transition-all ${item.isSoldOut ? 'opacity-60 grayscale-[0.5]' : 'cursor-pointer hover:shadow-md hover:border-red-100'}`}
+                  onClick={() => handleOpenDetail(item)}
+                >
+                  <div className="flex gap-4 p-3 pr-4 pointer-events-none">
                     <div className="w-24 h-24 bg-stone-200 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center relative">
                        <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
                        {item.isSoldOut && (
@@ -136,14 +153,11 @@ export default function Home() {
                         <span className={`font-bold ${item.isSoldOut ? 'text-stone-500 line-through' : 'text-red-900'}`}>
                           ¥{item.price.toLocaleString()}
                         </span>
-                        <Button 
-                          size="icon" 
-                          variant="outline" 
-                          className="h-10 w-10 text-red-900 border-red-200 hover:bg-red-50 rounded-full"
-                          onClick={() => handleAddToCart(item)}
-                        >
-                          <Plus className="h-5 w-5" />
-                        </Button>
+                        {!item.isSoldOut && (
+                          <div className="h-8 w-8 text-red-900 border border-red-200 bg-white rounded-full flex items-center justify-center shadow-sm">
+                            <Plus className="h-4 w-4" />
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -254,6 +268,66 @@ export default function Home() {
                 className="w-full bg-red-900 hover:bg-red-800 text-white rounded-full h-14 text-lg font-bold shadow-lg mt-2"
               >
                 注文を確定する
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 5. Product Detail Modal */}
+      {selectedMenuItem && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex flex-col justify-end max-w-md mx-auto">
+          {/* オーバーレイクリックで閉じる */}
+          <div className="flex-1" onClick={() => setSelectedMenuItem(null)}></div>
+          
+          <div className="bg-white rounded-t-3xl flex flex-col shadow-2xl animate-in slide-in-from-bottom-full duration-200 overflow-hidden">
+            <div className="relative h-64 bg-stone-200">
+              <img src={selectedMenuItem.imageUrl} alt={selectedMenuItem.name} className="w-full h-full object-cover" />
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setSelectedMenuItem(null)} 
+                className="absolute top-4 right-4 bg-black/40 text-white hover:bg-black/60 rounded-full"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div>
+                <h2 className="font-bold text-2xl leading-tight mb-2">{selectedMenuItem.name}</h2>
+                <p className="text-stone-600 text-sm leading-relaxed">{selectedMenuItem.description}</p>
+              </div>
+              <p className="text-xl font-bold text-red-900">¥{selectedMenuItem.price.toLocaleString()}</p>
+              
+              <div className="flex items-center justify-center gap-6 py-4">
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className="h-12 w-12 rounded-full border-stone-300"
+                  onClick={() => setDetailQuantity(Math.max(1, detailQuantity - 1))}
+                  disabled={detailQuantity <= 1}
+                >
+                  <Minus className="h-6 w-6" />
+                </Button>
+                <span className="font-bold text-3xl w-12 text-center">{detailQuantity}</span>
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className="h-12 w-12 rounded-full border-stone-300"
+                  onClick={() => setDetailQuantity(detailQuantity + 1)}
+                >
+                  <Plus className="h-6 w-6" />
+                </Button>
+              </div>
+
+              <Button 
+                className="w-full bg-red-900 hover:bg-red-800 text-white rounded-full h-14 text-lg font-bold shadow-lg flex items-center justify-center gap-2"
+                onClick={handleConfirmAddToCart}
+              >
+                <ShoppingCart className="h-5 w-5" />
+                <span>カートに追加</span>
+                <span className="ml-2 font-normal opacity-80">・ ¥{(selectedMenuItem.price * detailQuantity).toLocaleString()}</span>
               </Button>
             </div>
           </div>
