@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OSAKI亭 - モバイルオーダー</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script>
+    // Tailwindのカスタム設定（和モダンな深紅をテーマカラーに設定）
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#8b0000',     // 深紅
+            secondary: '#1c1917',   // 墨色
+            surface: '#fafaf9',     // 和紙のようなオフホワイト
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-stone-200 text-secondary font-sans antialiased selection:bg-primary selection:text-white">
+
+  <!-- PC閲覧時でもスマホ幅に見えるよう max-w-md で制限 -->
+  <div class="max-w-md mx-auto min-h-screen bg-surface relative shadow-2xl pb-32">
+
+    <!-- 1. ヘッダー -->
+    <!-- z-indexとstickyで上部に固定。backdrop-blurですりガラス効果 -->
+    <header class="sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-stone-200 px-4 py-3 flex items-center justify-between">
+      <h1 class="text-2xl font-bold tracking-widest text-primary font-serif">OSAKI亭</h1>
+      <!-- 44x44pxのタップ領域を確保 -->
+      <button class="w-11 h-11 flex items-center justify-center rounded-full bg-stone-100 hover:bg-stone-200 active:scale-95 transition-all outline-none" aria-label="メニュー">
+        <i class="fa-solid fa-bars text-lg text-stone-600"></i>
+      </button>
+    </header>
+
+    <!-- 2. メニューエリア -->
+    <main class="p-4 space-y-8">
+      
+      <!-- セクション：おすすめ料理 (リスト表示) -->
+      <section>
+        <h2 class="text-lg font-bold mb-4 border-l-4 border-primary pl-2 text-stone-800">おすすめ料理</h2>
+        <div class="space-y-4">
+
+          <!-- メニュー項目 A -->
+          <div class="flex gap-4 p-3 bg-white border border-stone-100 rounded-2xl shadow-sm">
+            <div class="w-24 h-24 bg-stone-100 rounded-xl overflow-hidden flex-shrink-0">
+              <img src="https://placehold.jp/300x300.png?text=特製御膳" alt="おすすめA" class="w-full h-full object-cover">
+            </div>
+            <div class="flex-1 flex flex-col justify-between py-1">
+              <div>
+                <h3 class="font-bold text-base leading-tight">特製 すき焼き御膳</h3>
+                <p class="text-xs text-stone-500 mt-1 line-clamp-2">厳選された和牛を贅沢に使用した当店自慢の逸品です。</p>
+              </div>
+              <div class="flex items-center justify-between mt-2">
+                <span class="font-bold text-primary">¥1,800</span>
+                <!-- タップ領域 44x44px以上 (w-11 h-11) -->
+                <button class="add-to-cart-btn w-11 h-11 bg-primary/10 text-primary rounded-full flex items-center justify-center active:bg-primary/20 transition-transform active:scale-90 outline-none" aria-label="カートに追加">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- メニュー項目 B -->
+          <div class="flex gap-4 p-3 bg-white border border-stone-100 rounded-2xl shadow-sm">
+            <div class="w-24 h-24 bg-stone-100 rounded-xl overflow-hidden flex-shrink-0">
+              <img src="https://placehold.jp/300x300.png?text=季節の刺身" alt="おすすめB" class="w-full h-full object-cover">
+            </div>
+            <div class="flex-1 flex flex-col justify-between py-1">
+              <div>
+                <h3 class="font-bold text-base leading-tight">季節の刺身盛り合わせ</h3>
+                <p class="text-xs text-stone-500 mt-1 line-clamp-2">旬の鮮魚を市場から直接仕入れた新鮮なお造り。</p>
+              </div>
+              <div class="flex items-center justify-between mt-2">
+                <span class="font-bold text-primary">¥2,400</span>
+                <button class="add-to-cart-btn w-11 h-11 bg-primary/10 text-primary rounded-full flex items-center justify-center active:bg-primary/20 transition-transform active:scale-90 outline-none" aria-label="カートに追加">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- セクション：定番メニュー (2列グリッド) -->
+      <section>
+        <h2 class="text-lg font-bold mb-4 border-l-4 border-primary pl-2 text-stone-800">一品料理</h2>
+        <div class="grid grid-cols-2 gap-3">
+          
+          <!-- メニュー項目 C -->
+          <div class="bg-white border border-stone-100 rounded-2xl p-2 shadow-sm flex flex-col">
+            <div class="w-full aspect-square bg-stone-100 rounded-xl overflow-hidden mb-3">
+              <img src="https://placehold.jp/300x300.png?text=天ぷら" alt="定番A" class="w-full h-full object-cover">
+            </div>
+            <h3 class="font-bold text-sm leading-tight mb-1">海老の天ぷら</h3>
+            <div class="mt-auto flex items-center justify-between pt-2">
+              <span class="font-bold text-primary text-sm">¥980</span>
+              <button class="add-to-cart-btn w-11 h-11 bg-primary/10 text-primary rounded-full flex items-center justify-center active:scale-90 transition-transform outline-none">
+                <i class="fa-solid fa-plus"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- メニュー項目 D -->
+          <div class="bg-white border border-stone-100 rounded-2xl p-2 shadow-sm flex flex-col">
+            <div class="w-full aspect-square bg-stone-100 rounded-xl overflow-hidden mb-3">
+              <img src="https://placehold.jp/300x300.png?text=だし巻き" alt="定番B" class="w-full h-full object-cover">
+            </div>
+            <h3 class="font-bold text-sm leading-tight mb-1">特製だし巻き卵</h3>
+            <div class="mt-auto flex items-center justify-between pt-2">
+              <span class="font-bold text-primary text-sm">¥650</span>
+              <button class="add-to-cart-btn w-11 h-11 bg-primary/10 text-primary rounded-full flex items-center justify-center active:scale-90 transition-transform outline-none">
+                <i class="fa-solid fa-plus"></i>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+      
+    </main>
+
+    <!-- 3. フッター（常に固定されるカート確認ボタン） -->
+    <!-- pointer-events-none で背景のクリックを透過し、中の要素だけ pointer-events-auto にする -->
+    <div class="fixed bottom-0 left-0 w-full z-50 pointer-events-none">
+      <div class="max-w-md mx-auto px-4 pb-6 pt-12 bg-gradient-to-t from-surface via-surface/95 to-transparent pointer-events-auto">
+        <!-- 最小タップ領域以上の高さ（h-14 = 56px）を確保 -->
+        <button class="w-full h-14 bg-primary text-white rounded-full font-bold text-lg shadow-xl flex items-center justify-center relative active:scale-[0.98] transition-all outline-none">
+          <i class="fa-solid fa-cart-shopping absolute left-6 text-xl"></i>
+          <span>注文内容を確認する</span>
+          
+          <!-- カート件数バッジ (初期状態は scale-0 で非表示) -->
+          <div id="cart-badge" class="absolute right-2 top-2 bottom-2 aspect-square bg-white text-primary rounded-full flex items-center justify-center font-bold text-lg scale-0 transition-transform duration-300">
+            0
+          </div>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 4. JavaScript実装 -->
+  <script>
+    let cartCount = 0;
+    const badge = document.getElementById('cart-badge');
+    const addButtons = document.querySelectorAll('.add-to-cart-btn');
+
+    addButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        // カウントアップ
+        cartCount++;
+        badge.innerText = cartCount;
+        
+        // バッジの表示・アニメーション
+        if (cartCount === 1) {
+          // 初回追加時はスケールアップして表示
+          badge.classList.remove('scale-0');
+          badge.classList.add('scale-100');
+        } else {
+          // 2回目以降は数値が更新されたことを視覚的に伝えるバウンドアニメーション
+          badge.animate([
+            { transform: 'scale(1)' },
+            { transform: 'scale(1.2)' },
+            { transform: 'scale(1)' }
+          ], {
+            duration: 300,
+            easing: 'ease-out'
+          });
+        }
+
+        // 押したボタンのアイコンを一時的にチェックマークに変更する演出
+        const icon = button.querySelector('i');
+        icon.classList.remove('fa-plus');
+        icon.classList.add('fa-check');
+        
+        // 1秒後に元の＋アイコンに戻す
+        setTimeout(() => {
+          icon.classList.remove('fa-check');
+          icon.classList.add('fa-plus');
+        }, 1000);
+      });
+    });
+  </script>
+</body>
+</html>
