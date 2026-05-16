@@ -1,8 +1,36 @@
 ﻿import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { ShoppingCart, Plus } from "lucide-react";
 
+// --- メニューデータ ---
+type MenuItem = {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+};
+
+const MENU_DATA: MenuItem[] = [
+  // 御膳・定食
+  { id: "1", name: "特製 すき焼き御膳", description: "厳選和牛を贅沢に使用した当店自慢の逸品。", price: 1800, category: "御膳・定食" },
+  { id: "2", name: "季節の刺身盛り合わせ", description: "旬の鮮魚を市場から直接仕入れた新鮮なお造り。", price: 2400, category: "御膳・定食" },
+  { id: "3", name: "極上 海鮮丼", description: "新鮮な海の幸をふんだんに盛り込んだ贅沢な一杯。", price: 2100, category: "御膳・定食" },
+  { id: "4", name: "天ぷら盛り合わせ御膳", description: "サクサクの衣で揚げた旬の野菜と海老の天ぷら。", price: 1600, category: "御膳・定食" },
+  // 一品料理
+  { id: "5", name: "銀だらの西京焼き", description: "特製味噌にじっくり漬け込んだ、香ばしく上品な味わい。", price: 1450, category: "一品料理" },
+  { id: "6", name: "自家製 だし巻き卵", description: "こだわりの出汁をたっぷり含んだふんわり卵焼き。", price: 680, category: "一品料理" },
+  { id: "7", name: "若鶏の唐揚げ", description: "外はカリッと、中はジューシーな定番メニュー。", price: 750, category: "一品料理" },
+  // お飲み物
+  { id: "8", name: "生ビール（プレミアムモルツ）", description: "キンキンに冷えた生ビールで乾杯。", price: 600, category: "お飲み物" },
+  // デザート
+  { id: "9", name: "自家製 抹茶アイス", description: "濃厚な宇治抹茶を使用したひんやりデザート。", price: 450, category: "デザート" },
+];
+
 export default function Home() {
+  // カテゴリ一覧を抽出（重複排除）
+  const categories = Array.from(new Set(MENU_DATA.map(item => item.category)));
+
   return (
     <div className="max-w-md mx-auto min-h-screen bg-stone-50 relative pb-24 shadow-xl">
       {/* 1. Header (Sticky) */}
@@ -20,52 +48,36 @@ export default function Home() {
 
       {/* 2. Menu Area */}
       <main className="p-4 space-y-8">
-        
-        <section>
-          <h2 className="text-lg font-bold mb-4 border-l-4 border-red-900 pl-2 text-stone-800">おすすめ</h2>
-          <div className="space-y-4">
-            {/* Menu Item A */}
-            <Card className="overflow-hidden border-stone-100 shadow-sm">
-              <div className="flex gap-4 p-3 pr-4">
-                <div className="w-24 h-24 bg-stone-200 rounded-xl overflow-hidden flex-shrink-0 animate-pulse">
-                </div>
-                <div className="flex-1 flex flex-col justify-between py-1">
-                  <div>
-                    <h3 className="font-bold text-base leading-tight">特製 すき焼き御膳</h3>
-                    <p className="text-xs text-stone-500 mt-1 line-clamp-2">厳選和牛を贅沢に使用した当店自慢の逸品。</p>
+        {categories.map((category) => (
+          <section key={category}>
+            <h2 className="text-lg font-bold mb-4 border-l-4 border-red-900 pl-2 text-stone-800">
+              {category}
+            </h2>
+            <div className="space-y-4">
+              {MENU_DATA.filter(item => item.category === category).map((item) => (
+                <Card key={item.id} className="overflow-hidden border-stone-100 shadow-sm">
+                  <div className="flex gap-4 p-3 pr-4">
+                    <div className="w-24 h-24 bg-stone-200 rounded-xl overflow-hidden flex-shrink-0 animate-pulse flex items-center justify-center">
+                       <span className="text-stone-400 text-xs text-center px-1 font-medium">No Image</span>
+                    </div>
+                    <div className="flex-1 flex flex-col justify-between py-1">
+                      <div>
+                        <h3 className="font-bold text-base leading-tight">{item.name}</h3>
+                        <p className="text-xs text-stone-500 mt-1 line-clamp-2">{item.description}</p>
+                      </div>
+                      <div className="flex items-center justify-between mt-2">
+                        <span className="font-bold text-red-900">¥{item.price.toLocaleString()}</span>
+                        <Button size="icon" variant="outline" className="h-10 w-10 text-red-900 border-red-200 hover:bg-red-50 rounded-full">
+                          <Plus className="h-5 w-5" />
+                        </Button>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between mt-2">
-                    <span className="font-bold text-red-900">¥1,800</span>
-                    <Button size="icon" variant="outline" className="h-10 w-10 text-red-900 border-red-200 hover:bg-red-50 rounded-full">
-                      <Plus className="h-5 w-5" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </Card>
-
-            {/* Menu Item B */}
-            <Card className="overflow-hidden border-stone-100 shadow-sm">
-              <div className="flex gap-4 p-3 pr-4">
-                <div className="w-24 h-24 bg-stone-200 rounded-xl overflow-hidden flex-shrink-0 animate-pulse">
-                </div>
-                <div className="flex-1 flex flex-col justify-between py-1">
-                  <div>
-                    <h3 className="font-bold text-base leading-tight">季節の刺身盛り合わせ</h3>
-                    <p className="text-xs text-stone-500 mt-1 line-clamp-2">旬の鮮魚を市場から直接仕入れた新鮮なお造り。</p>
-                  </div>
-                  <div className="flex items-center justify-between mt-2">
-                    <span className="font-bold text-red-900">¥2,400</span>
-                    <Button size="icon" variant="outline" className="h-10 w-10 text-red-900 border-red-200 hover:bg-red-50 rounded-full">
-                      <Plus className="h-5 w-5" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </Card>
-          </div>
-        </section>
-
+                </Card>
+              ))}
+            </div>
+          </section>
+        ))}
       </main>
 
       {/* 3. Footer (Fixed Cart Button) */}
